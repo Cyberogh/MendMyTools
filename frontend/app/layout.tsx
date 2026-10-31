@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
+import { Geist, Geist_Mono, Bodoni_Moda } from "next/font/google"
 
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants"
 import { Providers } from "./providers"
@@ -16,16 +16,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 })
 
-const vogueSerif = Playfair_Display({
+const vogueFont = Bodoni_Moda({
   variable: "--font-vogue",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-  style: ["normal", "italic"],
+  weight: ["600", "700"],
 })
 
 export const metadata: Metadata = {
   title: {
-    default: `${APP_NAME} · Enterprise Repair & Support Cloud`,
+    default: APP_NAME,
     template: `%s · ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
@@ -40,7 +39,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${vogueSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${vogueFont.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-background text-foreground font-sans antialiased">
         <ThemeProvider>

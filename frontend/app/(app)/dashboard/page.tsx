@@ -5,11 +5,8 @@ import {
   ArrowRight,
   CheckCircle,
   Clock,
-  Cpu,
   Inbox,
   Plus,
-  Server,
-  ShieldCheck,
   Star,
   Ticket,
   Users,
@@ -37,13 +34,17 @@ export default function DashboardPage() {
   const isAgent = user?.role === ROLES.AGENT
   const isEmployee = user?.role === ROLES.EMPLOYEE
 
+  // Fetch my tickets for employee (and fallback)
   const myTicketsQuery = useMyTickets(!!user && !isAdmin && !isAgent)
+  // Fetch all tickets for admin
   const allTicketsQuery = useAllTickets(!!user && isAdmin)
+  // Fetch assigned tickets for agent
   const assignedTicketsQuery = useAssignedTickets(!!user && isAgent)
 
   const activeQuery = isAdmin ? allTicketsQuery : isAgent ? assignedTicketsQuery : myTicketsQuery
   const { data: tickets, isLoading, isError, error, refetch } = activeQuery
 
+  // Calculate ticket statistics
   const stats = React.useMemo(() => {
     if (!tickets) return { total: 0, open: 0, pending: 0, closed: 0 }
     return {
@@ -58,6 +59,7 @@ export default function DashboardPage() {
 
   const recentTickets = React.useMemo(() => {
     if (!tickets) return []
+    // Sort by updated_at descending and get top 5
     return [...tickets]
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
       .slice(0, 5)
@@ -70,79 +72,37 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="MENDMYTOOLS · CLOUD ATELIER COMMAND"
+        eyebrow="Workspace"
         title={
           user?.sub
-            ? `Atelier Dispatch — ${user.sub.split("@")[0]}`
-            : "MendMyTools Atelier"
+            ? `Welcome, ${user.sub.split("@")[0]}`
+            : "Welcome back"
         }
         description={
           isAdmin
-            ? "Live cloud SLA telemetry, multi-container queue orchestration, and specialist assignments."
+            ? "Here's the operational health of your support system."
             : isAgent
-            ? "Inspect assigned tool-repair orders, update diagnostic status, and verify SLA compliance."
-            : "Log precision hardware/software repair orders and rate completed resolution cycles."
+            ? "Check assigned tickets or search specific cases."
+            : "Create and track your MendMyTools support tickets."
         }
         actions={
           isEmployee ? (
-            <Button asChild className="uppercase tracking-wider text-xs">
+            <Button asChild>
               <Link href="/tickets/new">
                 <Plus className="size-4" />
-                Log Repair Order
+                New ticket
               </Link>
             </Button>
           ) : null
         }
       />
 
-      {/* Cloud Architecture & SLA Telemetry Strip */}
-      <div className="grid gap-3 sm:grid-cols-3 rounded-lg border border-border bg-secondary/60 p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded bg-primary/15 text-primary">
-            <Server className="size-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Cloud Pipeline
-            </div>
-            <div className="text-xs font-medium">
-              Docker Compose · FastAPI + Next.js 16
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded bg-primary/15 text-primary">
-            <Cpu className="size-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              SLA Response & Availability
-            </div>
-            <div className="text-xs font-medium">
-              42ms P95 (&lt; 2s Target) · 99.9% Uptime
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded bg-primary/15 text-primary">
-            <ShieldCheck className="size-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Measured TTR & Recovery
-            </div>
-            <div className="text-xs font-medium">
-              32s Auto-Heal · RPO 0 min (Persistent DB)
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Agent assigned tickets section */}
       {isAgent && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-vogue text-xl font-semibold tracking-tight text-foreground">
-              Assigned Repair Orders
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              Your assigned tickets
             </h2>
             <Button variant="ghost" size="sm" asChild className="text-xs">
               <Link href="/tickets">
@@ -156,15 +116,15 @@ export default function DashboardPage() {
 
           {isError ? (
             <ErrorState
-              title="Could not load assigned repair orders"
+              title="Could not load assigned tickets"
               description={error instanceof Error ? error.message : "Something went wrong."}
               onRetry={() => refetch()}
             />
           ) : recentTickets.length === 0 ? (
             <EmptyState
               icon={<Inbox className="size-5" />}
-              title="No assigned repair orders"
-              description="Orders routed to you by the Admin Atelier will appear here."
+              title="No assigned tickets"
+              description="Tickets assigned to you by an admin will appear here."
             />
           ) : (
             <div className="space-y-3">
@@ -180,41 +140,44 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Stats Cards (Hidden for Agents since listing is not available for them) */}
       {!isAgent && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            label="Total Repair Orders"
+            label="Total tickets"
             value={stats.total}
-            icon={<Ticket className="size-4 text-primary" />}
+            icon={<Ticket className="size-4" />}
           />
           <StatCard
-            label="Open Diagnostics"
+            label="Open cases"
             value={stats.open}
-            icon={<AlertCircle className="size-4 text-sky-600" />}
+            icon={<AlertCircle className="size-4 text-sky-500" />}
           />
           <StatCard
-            label="Active In-Bench"
+            label="In progress"
             value={stats.pending}
-            icon={<Clock className="size-4 text-amber-600" />}
+            icon={<Clock className="size-4 text-amber-500" />}
           />
           <StatCard
-            label="Closed & Verified"
+            label="Closed issues"
             value={stats.closed}
-            icon={<CheckCircle className="size-4 text-emerald-600" />}
+            icon={<CheckCircle className="size-4 text-emerald-500" />}
           />
         </div>
       )}
 
+      {/* Main Section */}
       {!isAgent && (
         <div className="grid gap-6 lg:grid-cols-3">
+          {/* Recent Tickets list */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="font-vogue text-xl font-semibold tracking-tight text-foreground">
-                Recent Atelier Activity
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">
+                Recent updates
               </h2>
               <Button variant="ghost" size="sm" asChild className="text-xs">
                 <Link href={isAdmin ? "/tickets/all" : "/tickets"}>
-                  View full ledger
+                  View all
                   <ArrowRight className="size-3 ml-1" />
                 </Link>
               </Button>
@@ -222,15 +185,15 @@ export default function DashboardPage() {
 
             {isError ? (
               <ErrorState
-                title="Could not load repair orders"
+                title="Could not load tickets"
                 description={error instanceof Error ? error.message : "Something went wrong."}
                 onRetry={() => refetch()}
               />
             ) : recentTickets.length === 0 ? (
               <EmptyState
                 icon={<Inbox className="size-5" />}
-                title="No repair orders logged"
-                description="When repair tickets are submitted, they will appear in this feed."
+                title="No tickets found"
+                description="When support tickets are created, they will display here."
               />
             ) : (
               <div className="space-y-3">
@@ -245,31 +208,32 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {/* Quick Actions Panel */}
           <div className="space-y-4">
-            <h2 className="font-vogue text-xl font-semibold tracking-tight text-foreground">
-              Atelier Controls
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
+              Quick actions
             </h2>
-            <Card className="border-border bg-card">
+            <Card className="border-border/60">
               <CardContent className="p-5 space-y-3.5">
                 {isEmployee && (
-                  <Button className="w-full justify-start text-sm h-10" asChild>
+                  <Button className="w-full justify-start text-sm h-10" asChild variant="outline">
                     <Link href="/tickets/new">
                       <Plus className="size-4 mr-2" />
-                      Log New Repair Order
+                      Create a ticket
                     </Link>
                   </Button>
                 )}
                 <Button className="w-full justify-start text-sm h-10" asChild variant="outline">
                   <Link href={isAdmin ? "/tickets/all" : "/tickets"}>
                     <Ticket className="size-4 mr-2" />
-                    {isAdmin ? "Master Ticket Ledger" : "View My Repair Orders"}
+                    {isAdmin ? "Browse all tickets" : "View my tickets"}
                   </Link>
                 </Button>
                 {isAdmin && (
                   <Button className="w-full justify-start text-sm h-10" asChild variant="outline">
                     <Link href="/users">
                       <Users className="size-4 mr-2" />
-                      Operator Role Directory
+                      Manage users
                     </Link>
                   </Button>
                 )}
@@ -292,15 +256,15 @@ function StatCard({
   icon: React.ReactNode
 }) {
   return (
-    <Card className="border-border bg-card hover:border-primary/40 transition-colors">
+    <Card className="border-border/60 hover:border-border transition-colors">
       <CardContent className="p-6 flex items-center justify-between">
         <div className="space-y-1">
-          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.16em]">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {label}
           </p>
-          <p className="font-vogue text-4xl font-bold tracking-tight">{value}</p>
+          <p className="text-3xl font-semibold tracking-tight">{value}</p>
         </div>
-        <div className="flex size-10 items-center justify-center rounded bg-secondary text-foreground border border-border">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-muted text-muted-foreground border border-border/40">
           {icon}
         </div>
       </CardContent>
@@ -309,6 +273,7 @@ function StatCard({
 }
 
 function AgentRatingCard({ agentId }: { agentId: number | null }) {
+  // Compute the round-up value once for the StarPicker (which is integer-only).
   const query = useAgentRatingStats(agentId, !!agentId)
   const stats = query.data
   const average = stats?.average_rating ?? null
@@ -316,18 +281,18 @@ function AgentRatingCard({ agentId }: { agentId: number | null }) {
   const filledStars = average === null ? 0 : Math.round(average)
 
   return (
-    <Card className="border-border">
+    <Card className="border-border/60">
       <CardContent className="p-5 md:p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Star className="size-4 text-amber-500 fill-amber-500" />
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                Specialist Quality Index
+              <Star className="size-4 text-amber-400 fill-amber-400" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Average rating
               </p>
             </div>
             <div className="flex items-baseline gap-2">
-              <p className="font-vogue text-3xl font-bold tracking-tight">
+              <p className="text-3xl font-semibold tracking-tight">
                 {query.isLoading
                   ? "—"
                   : average === null
@@ -336,7 +301,7 @@ function AgentRatingCard({ agentId }: { agentId: number | null }) {
               </p>
               {average !== null && (
                 <p className="text-xs text-muted-foreground">
-                  Across {total} verified cycle{total === 1 ? "" : "s"}
+                  Based on {total} rating{total === 1 ? "" : "s"}
                 </p>
               )}
             </div>
@@ -361,15 +326,27 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-8 animate-pulse">
       <div className="space-y-3">
-        <Skeleton className="h-4 w-28" />
-        <Skeleton className="h-9 w-64" />
-        <Skeleton className="h-4 w-80" />
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-72" />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-[104px] w-full" />
+          <Skeleton key={i} className="h-[96px] w-full" />
         ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-[112px] w-full" />
+          <Skeleton className="h-[112px] w-full" />
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-48 w-full" />
+        </div>
       </div>
     </div>
   )

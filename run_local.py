@@ -70,16 +70,16 @@ def setup() -> None:
                     priority=TicketPriority.HIGH,
                     created_by=emp.id,
                     assigned_to=agent.id,
-                    resolution_cycle=1,
+                    current_resolution_cycle=1,
                 ),
                 Ticket(
                     title="AWS EC2 Auto-Scaling Group Healthcheck Timeout (S1 Critical)",
                     description="Production worker container failed /docs probe after memory spike. Docker restart policy triggered recovery in 32 seconds; verifying root cause.",
                     status=TicketStatus.CLOSED,
-                    priority=TicketPriority.HIGH,
+                    priority=TicketPriority.CRITICAL,
                     created_by=emp.id,
                     assigned_to=agent.id,
-                    resolution_cycle=1,
+                    current_resolution_cycle=1,
                 ),
                 Ticket(
                     title="Hydraulic Torque Wrench Telemetry Sync Failure",
@@ -88,7 +88,7 @@ def setup() -> None:
                     priority=TicketPriority.MEDIUM,
                     created_by=emp.id,
                     assigned_to=None,
-                    resolution_cycle=0,
+                    current_resolution_cycle=1,
                 ),
                 Ticket(
                     title="Industrial 3D Sintering Extruder Thermal Sensor Replacement",
@@ -97,7 +97,7 @@ def setup() -> None:
                     priority=TicketPriority.LOW,
                     created_by=emp.id,
                     assigned_to=agent.id,
-                    resolution_cycle=1,
+                    current_resolution_cycle=1,
                 ),
             ]
             db.add_all(sample_tickets)
@@ -116,20 +116,20 @@ def setup() -> None:
             db.add(
                 TicketRating(
                     ticket_id=sample_tickets[1].id,
-                    user_id=emp.id,
+                    employee_id=emp.id,
                     agent_id=agent.id,
                     rating=5,
-                    comment="Container recovered in 32 seconds with zero data loss. Outstanding SLA compliance!",
+                    feedback="Container recovered in 32 seconds with zero data loss. Outstanding SLA compliance!",
                     resolution_cycle=1,
                 )
             )
             db.add(
                 TicketRating(
                     ticket_id=sample_tickets[3].id,
-                    user_id=emp.id,
+                    employee_id=emp.id,
                     agent_id=agent.id,
                     rating=5,
-                    comment="Thermal sensor replaced ahead of schedule.",
+                    feedback="Thermal sensor replaced ahead of schedule.",
                     resolution_cycle=1,
                 )
             )

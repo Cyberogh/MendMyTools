@@ -20,19 +20,17 @@ export function PageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 border-b border-border pb-6 md:flex-row md:items-end md:justify-between md:gap-6",
+        "flex flex-col gap-3 pb-6 md:flex-row md:items-end md:justify-between md:gap-6",
         className,
       )}
     >
       <div className="space-y-1.5 min-w-0">
         {eyebrow && (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {eyebrow}
           </p>
         )}
-        <h1 className="font-vogue text-3xl md:text-4xl font-bold tracking-tight text-balance">
-          {title}
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
         {description && (
           <p className="text-sm text-muted-foreground max-w-2xl text-pretty">
             {description}
