@@ -12,7 +12,7 @@ echo "[entrypoint] Starting MendMyTools backend..."
 # has time to become ready.
 echo "[entrypoint] Waiting for database..."
 for i in $(seq 1 30); do
-  if python -c "import psycopg2; psycopg2.connect('$DATABASE_URL')" >/dev/null 2>&1; then
+if python -c "import os, psycopg2; psycopg2.connect(os.environ['DATABASE_URL'].replace('+psycopg2',''))" >/dev/null 2>&1; then
     echo "[entrypoint] Database is ready."
     break
   fi
