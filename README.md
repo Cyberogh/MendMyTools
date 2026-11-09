@@ -2,11 +2,6 @@
 
 **MendMyTools** is a cloud-native enterprise tool repair, diagnostics, and SLA ticket management platform built with **FastAPI**, **Next.js 16**, **SQLAlchemy 2.x**, and **Docker Compose**, engineered for high availability (`99.5%+ SLA`), sub-second API response times (`< 500ms P95`), and automated container crash recovery (`TTR < 32s`).
 
-### 👥 Project by:
-- **Ayushi Srivastava** — `202310101150049`
-- **GitHub Repository:** [https://github.com/Cyberogh/MendMyTools](https://github.com/Cyberogh/MendMyTools)
-
----
 
 ## 🏛️ 1. Cloud Architecture & Pipeline Overview
 
